@@ -4,11 +4,13 @@
 const os = require('os');
 const which = require('which');
 const utils = require('../lib/utils');
-
 const EventEmitter = require('events').EventEmitter;
+const execSync = require('child_process').execSync;
+const semver = require('semver');
 
 const notifier = 'notify-send';
 let hasNotifier;
+let hasActionsCapability;
 
 function noop() {}
 
@@ -62,6 +64,7 @@ class NotifySend extends EventEmitter {
   constructor(options) {
     super();
     this.options = utils.clone(options || {});
+    this.checkActionCapability();
   }
 
   notify(options, callback) {
@@ -99,7 +102,6 @@ class NotifySend extends EventEmitter {
     }
 
     try {
-      hasNotifier = !!which.sync(notifier);
       this._doNotification(options, callback);
     } catch (err) {
       hasNotifier = false;
@@ -107,6 +109,30 @@ class NotifySend extends EventEmitter {
     }
 
     return this;
+  }
+
+  checkActionCapability() {
+    hasActionsCapability = false;
+    hasNotifier = !!which.sync(notifier);
+
+    if (!hasNotifier) return;
+
+    const notifierVersion = execSync(notifier + ' --version');
+    const notifierVersionNumber = notifierVersion
+      .toString()
+      .trim()
+      .split(' ')[1];
+
+    if (
+      semver.satisfies(
+        utils.garanteeSemverFormat(notifierVersionNumber),
+        '>=0.8.2'
+      )
+    ) {
+      hasActionsCapability = true;
+    } else {
+      // throw new Error('notify-send version ' + notifierVersionNumber + ' does not support "actions". Upgrade to a newer version >=0.8.2');
+    }
   }
 
   _doNotification(options, callback) {
@@ -122,22 +148,26 @@ class NotifySend extends EventEmitter {
       delete options.actions;
     }
 
-    const allowedArguments = [
-      'action',
+    let allowedArguments = [
       'urgency',
       'expire-time',
       'icon',
       'category',
       'hint',
-      'app-name'
+      'app-name',
+      'action'
     ];
+    if (!hasActionsCapability) allowedArguments.pop();
 
     const argsList = utils.constructArgumentList(options, {
       initial: initial,
       keyExtra: '-',
-      arrayArgToMultipleArgs: true,
+      arrayArgToMultipleArgs: hasActionsCapability,
       allowedArguments: allowedArguments
     });
+
+    if (!hasActionsCapability)
+      return utils.command(notifier, argsList, callback);
 
     const actionJackedCallback = NotifySendActionJackerDecorator(
       this,
