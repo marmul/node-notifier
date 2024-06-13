@@ -148,16 +148,15 @@ class NotifySend extends EventEmitter {
       delete options.actions;
     }
 
-    let allowedArguments = [
+    const allowedArguments = [
       'urgency',
       'expire-time',
       'icon',
       'category',
       'hint',
-      'app-name',
-      'action'
+      'app-name'
     ];
-    if (!hasActionsCapability) allowedArguments.pop();
+    if (hasActionsCapability) allowedArguments.push('action');
 
     const argsList = utils.constructArgumentList(options, {
       initial: initial,
@@ -166,8 +165,9 @@ class NotifySend extends EventEmitter {
       allowedArguments: allowedArguments
     });
 
-    if (!hasActionsCapability)
+    if (!hasActionsCapability) {
       return utils.command(notifier, argsList, callback);
+    }
 
     const actionJackedCallback = NotifySendActionJackerDecorator(
       this,
