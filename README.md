@@ -344,12 +344,24 @@ See full usage on the [project homepage: **`notifu`**](http://www.paralint.com/p
 
 ### Usage: `NotifySend`
 
-**Note:** `notify-send` doesn't support the `wait` flag.
+**Note:** `notify-send` <0.8.2 doesn't support the `wait` flag.
+
+**Note:** `notify-send` >=0.8.2 supports actions.
 
 ```javascript
 const NotifySend = require('node-notifier').NotifySend;
 
 var notifier = new NotifySend();
+
+notifier.on('ok', () => {
+  console.log('"OK" was pressed');
+});
+notifier.on('cancel', () => {
+  console.log('"Cancel" was pressed');
+});
+notifier.on('activate', () => {
+  console.log('notification was clicked');
+});
 
 notifier.notify({
   title: 'Foo',
@@ -363,11 +375,14 @@ notifier.notify({
   'app-name': 'node-notifier',
   urgency: undefined,
   category: undefined,
-  hint: undefined
+  hint: undefined,
+  actions: ['OK', 'Cancel'] // Name of action in lowercase will be used as event name
 });
 ```
 
 See flags and options on the man page [`notify-send(1)`](http://manpages.ubuntu.com/manpages/gutsy/man1/notify-send.1.html)
+
+Run `example/toaster-with-actions` to see handling of action response.
 
 ## Thanks to OSS
 
