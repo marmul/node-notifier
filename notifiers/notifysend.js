@@ -111,6 +111,17 @@ const NotifySendActionJackerDecorator = function (
     }
 
     fn.apply(emitter, [err, resultantData, metadata]);
+    if (!resultantData && !err) {
+      emitter.emit('activate', emitter, options, metadata);
+      return;
+    }
+    if (!err) {
+      emitter.emit(resultantData, emitter, options, metadata);
+      return;
+    }
+    if (err) {
+      emitter.emit('error', emitter, options, err);
+    }
   };
 };
 
