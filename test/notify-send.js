@@ -130,4 +130,58 @@ describe('notify-send', function () {
       tullball: 'notValid'
     });
   });
+
+  it('should add one action option per action entry', function (done) {
+    const expected = [
+      '"title"',
+      '"body"',
+      '--icon',
+      '"icon-string"',
+      '--action',
+      '"Yes"',
+      '--action',
+      '"No"',
+      '--action',
+      '"May\\`be\\`"',
+      '--expire-time',
+      '"10000"'
+    ];
+
+    expectArgsListToBe(expected, done);
+    const notifier = new Notify({ suppressOsdCheck: true });
+    notifier.notify({
+      title: 'title',
+      message: 'body',
+      icon: 'icon-string',
+      tullball: 'notValid',
+      action: ['Yes', 'No', 'May`be`']
+    });
+  });
+
+  it('should add one action option per actionS entry', function (done) {
+    const expected = [
+      '"title"',
+      '"body"',
+      '--icon',
+      '"icon-string"',
+      '--action',
+      '"Yes"',
+      '--action',
+      '"No"',
+      '--action',
+      '"May\\`be\\`"',
+      '--expire-time',
+      '"10000"'
+    ];
+
+    expectArgsListToBe(expected, done);
+    const notifier = new Notify({ suppressOsdCheck: true });
+    notifier.notify({
+      title: 'title',
+      message: 'body',
+      icon: 'icon-string',
+      tullball: 'notValid',
+      actions: ['Yes', 'No', 'May`be`']
+    });
+  });
 });
