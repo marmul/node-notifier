@@ -79,6 +79,41 @@ Object.defineProperty(NotifySend.prototype, 'notify', {
   }
 });
 
+const NotifySendActionJackerDecorator = function (
+  emitter,
+  options,
+  fn,
+  mapper
+) {
+  options = utils.clone(options);
+  fn = fn || noop;
+  if (typeof fn !== 'function') {
+    throw new TypeError(
+      'The second argument must be a function callback. You have passed ' +
+        typeof fn
+    );
+  }
+
+  return function (err, data) {
+    let resultantData = data;
+    let metadata = {};
+    // Allow for extra data if resultantData is an object
+    if (resultantData && typeof resultantData === 'object') {
+      metadata = resultantData;
+      resultantData = resultantData.activationType;
+    }
+
+    // Sanitize the data
+    if (resultantData) {
+      resultantData = resultantData.trim();
+      const index = Number(resultantData);
+      resultantData = options.action[index].toLowerCase();
+    }
+
+    fn.apply(emitter, [err, resultantData, metadata]);
+  };
+};
+
 const allowedArguments = [
   'action',
   'urgency',
@@ -109,5 +144,12 @@ function doNotification(options, callback) {
     allowedArguments: allowedArguments
   });
 
-  utils.command(notifier, argsList, callback);
+  const actionJackedCallback = NotifySendActionJackerDecorator(
+    this,
+    options,
+    callback,
+    null
+  );
+
+  utils.command(notifier, argsList, actionJackedCallback);
 }
