@@ -346,7 +346,7 @@ See full usage on the [project homepage: **`notifu`**](http://www.paralint.com/p
 
 **Note:** `notify-send` <0.8.2 doesn't support the `wait` flag.
 
-**Note:** `notify-send` >=0.8.2 supports actions.
+**Note:** `notify-send` >=0.8.2 supports `action` and `wait` flags.
 
 ```javascript
 const NotifySend = require('node-notifier').NotifySend;
@@ -376,13 +376,13 @@ notifier.notify({
   urgency: undefined,
   category: undefined,
   hint: undefined,
-  actions: ['OK', 'Cancel'] // Name of action in lowercase will be used as event name
+  actions: ['OK', 'Cancel'] // Name of action in lowercase will be used as event name; implicitly adds '--wait' as well.
 });
 ```
 
 See flags and options on the man page [`notify-send(1)`](http://manpages.ubuntu.com/manpages/gutsy/man1/notify-send.1.html)
 
-Run `example/toaster-with-actions` to see handling of action response.
+Run `example/notify-send.js` to see handling of action response. **You must run this example from a real terminal, it doesn't work from inside e.g. VSCode since libnotify will be in `confined` mode then.**
 
 ## Thanks to OSS
 
