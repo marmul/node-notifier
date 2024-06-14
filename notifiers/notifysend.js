@@ -136,17 +136,18 @@ class NotifySend extends EventEmitter {
   }
 
   _doNotification(options, callback) {
+    if ('actions' in options) {
+      // rename actions to action
+      options.action = options.actions;
+      delete options.actions;
+    }
+    const originalOptions = utils.clone(options); // nearly original options
     options = utils.mapToNotifySend(options);
     options.title = options.title || 'Node Notification:';
 
     const initial = [options.title, options.message];
     delete options.title;
     delete options.message;
-
-    if ('actions' in options) {
-      options.action = options.actions;
-      delete options.actions;
-    }
 
     const allowedArguments = [
       'urgency',
@@ -175,7 +176,7 @@ class NotifySend extends EventEmitter {
 
     const actionJackedCallback = NotifySendActionJackerDecorator(
       this,
-      options,
+      originalOptions,
       callback,
       null
     );
