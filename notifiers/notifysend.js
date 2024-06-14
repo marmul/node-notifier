@@ -156,12 +156,16 @@ class NotifySend extends EventEmitter {
       'hint',
       'app-name'
     ];
-    if (hasActionsCapability) allowedArguments.push('action');
+    if (hasActionsCapability) {
+      allowedArguments.push('action');
+      allowedArguments.push('wait');
+    }
 
     const argsList = utils.constructArgumentList(options, {
       initial: initial,
       keyExtra: '-',
       arrayArgToMultipleArgs: hasActionsCapability,
+      explicitTrue: true,
       allowedArguments: allowedArguments
     });
 
