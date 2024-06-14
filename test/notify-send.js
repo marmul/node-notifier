@@ -184,4 +184,16 @@ describe('notify-send', function () {
       actions: ['Yes', 'No', 'May`be`']
     });
   });
+
+  it('should keep wait switch (and add expire-time option)', function (done) {
+    const expected = ['"title"', '"body"', '--wait', '--expire-time', '"5000"'];
+
+    expectArgsListToBe(expected, done);
+    const notifier = new Notify({ suppressOsdCheck: true });
+    notifier.notify({
+      title: 'title',
+      message: 'body',
+      wait: true
+    });
+  });
 });
